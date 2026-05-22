@@ -7,12 +7,13 @@ from os import getenv
 load_dotenv()
 
 def main() -> None:
-    if not all([getenv("SONA_USERNAME"), getenv("SONA_PASSWORD"), getenv("DISCORD_WEBHOOK_URL")]):
-        raise ValueError("Missing required environment variables. Please check your .env file or environment secrets.")
-    username: str = getenv("SONA_USERNAME")
-    password: str = getenv("SONA_PASSWORD")
+    #if not all([getenv("SONA_USERNAME"), getenv("SONA_PASSWORD"), getenv("DISCORD_WEBHOOK_URL")]):
+        #pass
+        #raise ValueError("Missing required environment variables. Please check your .env file or environment secrets.")
+    #username: str = getenv("SONA_USERNAME")
+    #password: str = getenv("SONA_PASSWORD")
     webhook_url: str = getenv("DISCORD_WEBHOOK_URL")
-    website_link: str = "https://psywue.sona-systems.com/"
+    #website_link: str = "https://psywue.sona-systems.com/"
 
 
     #studies = Scraper.scrape_studies(username, password, website_link)
