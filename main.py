@@ -1,3 +1,4 @@
+from time import sleep
 from src.discord_notifier import send_notification
 from src.scraper import scrape_studies
 from src.text_formatter import format_study_info
@@ -23,8 +24,9 @@ def main() -> None:
         return
 
     for study in studies:
-
+        
         message: str = format_study_info(study)
+        sleep(2)  # Optional: Vermeiden von Rate-Limiting durch Discord
         send_notification(message, webhook_url)
 
 if __name__ == "__main__":
