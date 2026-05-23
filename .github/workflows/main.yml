@@ -44,7 +44,7 @@ jobs:
 
       - name: Install Playwright browser
         run: |
-          python -m playwright install --with-deps --only-shell chrome
+          python -m playwright install --with-deps --only-shell chromium
 
       - name: Run scraper
         env:
