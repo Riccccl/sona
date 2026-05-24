@@ -2,7 +2,7 @@ name: SONA CI Workflow
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "0,10,20,30,40,50 * * * *"
 
 concurrency:
   group: scraper
