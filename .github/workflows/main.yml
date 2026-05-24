@@ -18,14 +18,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Restore cached studies
-        uses: actions/cache/restore@v4
-        with:
-          path: cached_studies.json
-          key: cached-studies-${{ github.run_id }}
-          restore-keys: |
-            cached-studies-
-
       - name: Ensure cache file exists
         run: |
           if [ ! -f cached_studies.json ]; then
@@ -54,8 +46,13 @@ jobs:
         run: |
           python main.py
 
-      - name: Save updated cache
-        uses: actions/cache/save@v4
-        with:
-          path: cached_studies.json
-          key: cached-studies-${{ github.run_id }}
+      - name: Commit updated cache file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add cached_studies.json
+
+          git diff --cached --quiet || git commit -m "Update cached studies"
+
+          git push
