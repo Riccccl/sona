@@ -3,7 +3,7 @@ name: SONA CI Workflow
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/20 * * * *"
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: write
