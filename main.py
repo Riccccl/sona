@@ -21,7 +21,7 @@ def main() -> None:
     studies = get_new_studies(scraped_studies)
     if not studies:
         print("Keine neuen Studien verfügbar.")
-        send_notification("keine neuen Studien verfügbar.", webhook_url)
+        #send_notification("keine neuen Studien verfügbar.", webhook_url)
         return
 
     for study in studies:
