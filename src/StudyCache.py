@@ -13,10 +13,10 @@ class StudyCache:
     def from_file(filename: str) -> StudyCache:
         try:
             with open(filename, "r", encoding="utf-8") as f:
-                data = load(f)
+                data: dict = load(f)
                 return StudyCache(
-                    date_created=datetime.fromisoformat(data["date_created"]),
-                    studies=[Study(**item) for item in data["studies"]]
+                    date_created=datetime.fromisoformat(data.get("date_created")),
+                    studies=[Study(**item) for item in data.get("studies")]
                 )
         except (FileNotFoundError, KeyError, ValueError):
             return StudyCache(date_created=datetime.now(), studies=[])
