@@ -33,14 +33,24 @@ def _split_message(message: str) -> list[str]:
     return chunks
 
 
-def send_notification(message: str, webhook_url: str) -> None:
+def _send_notification(payload: dict, webhook_url: str) -> None:
     try:
-        for chunk in _split_message(message):
-            payload = {
-                "content": chunk
-            }
-            r = requests.post(url=webhook_url, json=payload)
-            if r.status_code != 204:
-                raise RuntimeError(f"Failed to send notification: {r.status_code} {r.text}")
+        
+        r = requests.post(url=webhook_url, json=payload)
+        if r.status_code != 204:
+            raise RuntimeError(f"Failed to send notification: {r.status_code} {r.text}")
     except Exception as e:
         raise RuntimeError(f"Failed to send notification: {e}")
+
+def _create_payload_from_study(study: Study) -> dict:
+    return {
+        "username": f"Neue Studie!!!",
+        "content":  f"**{study.title}**\n"
+                    f" **Bezahlung:** {study.compensation}\n"
+                    f" **Beschreibung:** {study.short_description}\n"
+                    f" **Link:** {study.link}"
+    }
+
+def send_study_notification(study: Study, webhook_url: str) -> None:
+    payload = _create_payload_from_study(study)
+    _send_notification(payload=payload, webhook_url=webhook_url)

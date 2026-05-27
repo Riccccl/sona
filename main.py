@@ -1,8 +1,9 @@
 from time import sleep
-from src.discord_notifier import send_notification
+from src.Differ import Differ
+from src.discord_notifier import send_study_notification
+from src.models import Study
 from src.scraper import scrape_studies
-from src.text_formatter import format_study_info
-from src.differ import get_new_studies
+from src.StudyCache import StudyCache
 from dotenv import load_dotenv
 from os import getenv
 load_dotenv()
@@ -15,20 +16,22 @@ def main() -> None:
     password: str = getenv("SONA_PASSWORD")
     webhook_url: str = getenv("DISCORD_WEBHOOK_URL")
     website_link: str = "https://psywue.sona-systems.com/"
+    cached_studies_file: str = "cached_studies.json"
 
 
-    scraped_studies = scrape_studies(username, password, website_link, headless=True)
-    studies = get_new_studies(scraped_studies)
-    if not studies:
-        print("Keine neuen Studien verfügbar.")
-        #send_notification("keine neuen Studien verfügbar.", webhook_url)
-        return
+    scraped_studies: list[Study] = scrape_studies(username, password, website_link, headless=True)
+    newStudyCache = StudyCache(studies=scraped_studies)
+    oldStudyCache = StudyCache.from_file(cached_studies_file)
 
-    for study in studies:
-        
-        message: str = format_study_info(study)
-        sleep(2)  # Optional: Vermeiden von Rate-Limiting durch Discord
-        send_notification(message, webhook_url)
+    differ = Differ(oldStudyCache, newStudyCache)
+    print(f"Found {len(differ.get_new_studies())} new studies.")
+    for study in differ.get_new_studies():
+        print(f"Sending notification for study: {study.title}")
+        send_study_notification(study, webhook_url)
+        sleep(1)  # Sleep to avoid hitting rate limits
+    print(f"Time since last check: {differ.get_time_difference()}")
+
+    newStudyCache.to_file(cached_studies_file)
 
 if __name__ == "__main__":
     try:
