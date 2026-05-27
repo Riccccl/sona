@@ -1,2 +1,4 @@
 .env
 cached_studies.json
+__pycache__/
+.venv

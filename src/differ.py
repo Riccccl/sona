@@ -1,32 +1,21 @@
+from datetime import datetime
+from src.StudyCache import StudyCache
 from src.models import Study
-from json import dump, load
 
-cache_file = "cached_studies.json"
+class Differ:
 
+    def __init__(self, old_study_cache: StudyCache, new_study_cache: StudyCache) -> None:
+        self.old_study_cache = old_study_cache
+        self.new_study_cache = new_study_cache
 
-def _write_studies_to_file(studies: list[Study], filename: str) -> None:
-    if not filename.endswith(".json"):
-        raise ValueError("Filename must end with .json")
-    with open(filename, "w", encoding="utf-8") as f:
-        dump([study.__dict__ for study in studies], f, ensure_ascii=False, indent=2)
-
-def _read_studies_from_file(filename: str) -> list[Study]:
-    if not filename.endswith(".json"):
-        raise ValueError("Filename must end with .json")
-    with open(filename, "r", encoding="utf-8") as f:
-        data = load(f)
-        return [Study(**item) for item in data]
-
-def get_differences(old_studies: list[Study], new_studies: list[Study]) -> list[Study]:
-    old_links = {study.link for study in old_studies}
-    return [study for study in new_studies if study.link not in old_links]
-
-def get_new_studies(new_studies: list[Study]) -> list[Study]:
-    try:
-        old_studies = _read_studies_from_file(cache_file)
-    except FileNotFoundError:
-        old_studies = []
-    new_studies = new_studies or []
-    differences = get_differences(old_studies, new_studies)
-    _write_studies_to_file(new_studies, cache_file)
-    return differences
+    def get_time_difference(self) -> datetime:
+        old_study_date = self.old_study_cache.get_date_created()
+        new_study_date = self.new_study_cache.get_date_created()
+        return new_study_date - old_study_date
+    
+    def get_new_studies(self) -> list[Study]:
+        old_studies = self.old_study_cache.get_studies()
+        new_studies = self.new_study_cache.get_studies()
+        
+        old_links = {study.link for study in old_studies}
+        return [study for study in new_studies if study.link not in old_links]
