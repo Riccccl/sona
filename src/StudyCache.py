@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from src.models import Study
 from json import dump, load
 from datetime import datetime

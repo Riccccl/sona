@@ -1,5 +1,5 @@
 from time import sleep
-from src.Differ import Differ
+from src.differ import Differ
 from src.discord_notifier import send_study_notification
 from src.models import Study
 from src.scraper import scrape_studies
