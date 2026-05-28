@@ -18,7 +18,7 @@ def main() -> None:
     website_link: str = "https://psywue.sona-systems.com/"
     cached_studies_file: str = "cached_studies.json"
 
-    scraper = Scraper(username, password, website_link, headless=False)
+    scraper = Scraper(username, password, website_link, headless=True)
     available_studies: list[Study] = scraper.scrape_available_studies() 
     newStudyCache = StudyCache(studies=available_studies)
     oldStudyCache = StudyCache.from_file(cached_studies_file)
