@@ -2,7 +2,7 @@ from time import sleep
 from src.differ import Differ
 from src.discord_notifier import send_study_notification
 from src.models import Study
-from src.scraper import scrape_studies
+from src.scraper import Scraper
 from src.StudyCache import StudyCache
 from dotenv import load_dotenv
 from os import getenv
@@ -18,9 +18,9 @@ def main() -> None:
     website_link: str = "https://psywue.sona-systems.com/"
     cached_studies_file: str = "cached_studies.json"
 
-
-    scraped_studies: list[Study] = scrape_studies(username, password, website_link, headless=True)
-    newStudyCache = StudyCache(studies=scraped_studies)
+    scraper = Scraper(username, password, website_link, headless=False)
+    available_studies: list[Study] = scraper.scrape_available_studies() 
+    newStudyCache = StudyCache(studies=available_studies)
     oldStudyCache = StudyCache.from_file(cached_studies_file)
 
     differ = Differ(oldStudyCache, newStudyCache)
