@@ -1,6 +1,7 @@
 from time import sleep
 from src.differ import Differ
 from src.discord_notifier import send_study_notification
+from src.ntfy_notifier import send_ntfy_notification
 from src.models import Study
 from src.scraper import Scraper
 from src.StudyCache import StudyCache
@@ -15,6 +16,7 @@ def main() -> None:
     username: str = getenv("SONA_USERNAME")
     password: str = getenv("SONA_PASSWORD")
     webhook_url: str = getenv("DISCORD_WEBHOOK_URL")
+    ntfy_url: str | None = getenv("NTFY_URL")
     website_link: str = "https://psywue.sona-systems.com/"
     cached_studies_file: str = "cached_studies.json"
 
@@ -28,6 +30,8 @@ def main() -> None:
     for study in differ.get_new_studies():
         print(f"Sending notification for study: {study.title}")
         send_study_notification(study, webhook_url)
+        if ntfy_url:
+            send_ntfy_notification(study, ntfy_url)
         sleep(1)  # Sleep to avoid hitting rate limits
     print(f"Time since last check: {differ.get_time_difference()}")
 

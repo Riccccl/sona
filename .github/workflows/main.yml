@@ -39,6 +39,7 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           SONA_USERNAME: ${{ secrets.SONA_USERNAME }}
           SONA_PASSWORD: ${{ secrets.SONA_PASSWORD }}
+          NTFY_URL: ${{ secrets.NTFY_URL }}
         run: python main.py
 
       - name: Delete old caches
