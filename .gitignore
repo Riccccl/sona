@@ -1,4 +1,34 @@
+# Environment
 .env
+.venv/
+venv/
+
+# Project-specific runtime files
 cached_studies.json
+
+# Python
 __pycache__/
-.venv
+*.pyc
+*.pyo
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Type checking & linting
+.mypy_cache/
+.ruff_cache/
+
+# Packaging
+dist/
+build/
+*.egg-info/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo

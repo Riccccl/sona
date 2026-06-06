@@ -1,6 +1,8 @@
-from datetime import datetime
-from src.StudyCache import StudyCache
+from datetime import timedelta
+
 from src.models import Study
+from src.StudyCache import StudyCache
+
 
 class Differ:
 
@@ -8,7 +10,7 @@ class Differ:
         self.old_study_cache = old_study_cache
         self.new_study_cache = new_study_cache
 
-    def get_time_difference(self) -> datetime:
+    def get_time_difference(self) -> timedelta:
         old_study_date = self.old_study_cache.get_date_created()
         new_study_date = self.new_study_cache.get_date_created()
         return new_study_date - old_study_date

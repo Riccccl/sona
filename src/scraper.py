@@ -1,4 +1,5 @@
-from playwright.sync_api import Browser, BrowserContext, Page, sync_playwright, Locator
+from playwright.sync_api import Browser, BrowserContext, Locator, Page, sync_playwright
+
 from src.models import Study
 
 
@@ -26,54 +27,47 @@ class Scraper:
             context: BrowserContext = browser.new_context()
             page: Page = context.new_page()
             page.goto(self.website_link)
-
             self._anmeldungsdialog_bedienen(page)
-
             self._in_available_studies_navigieren(page)
             studies: list[Study] = self._extract_available_studies_from_table(page)
             return studies
-    
+
     def _extract_available_studies_from_table(self, page: Page) -> list[Study]:
-        table: Locator = page.locator('table.table.table-bordered.table-striped[aria-label="Studies with available timeslots"]')
-        table.wait_for()  # sicherstellen, dass die Tabelle existiert
+        table: Locator = page.locator('table.table.table-bordered.table-striped[aria-label="Studies with available timeslots"]')  # noqa: E501
+        table.wait_for()
         rows: list[Locator] = table.locator('tbody tr').all()
         studies: list[Study] = []
         for row in rows:
             cells = row.locator('td').all()
             if len(cells) >= 3:
-                timeslot: str = cells[0].inner_text()
                 title: str = cells[1].locator('p strong').inner_text()
                 compensation: str = cells[1].locator('span[id*="LabelCredits"]').inner_text()
                 short_description: str = cells[1].locator('span[id*="LabelStudyType"]').inner_text()
-                link = cells[1].locator('a').get_attribute('href')
-                eligibility: str = cells[2].inner_text()
-
+                link: str = cells[1].locator('a').get_attribute('href') or ""
                 study = Study(
                     title=title,
                     compensation=compensation,
                     short_description=short_description,
-                    link = self.website_link + link,
+                    link=self.website_link + link,
                 )
                 studies.append(study)
         return studies
 
     def _extract_participated_studies_from_table(self, page: Page) -> list[Study]:
         table: Locator = page.locator('table.table-bordered.table-striped.table-condensed.cf')
-        table.wait_for()  # sicherstellen, dass die Tabelle existiert
+        table.wait_for()
         rows: list[Locator] = table.locator('tbody tr').all()
         studies: list[Study] = []
         for row in rows:
             cells = row.locator('td').all()
             first_cell: Locator = cells[0]
-            title: str = first_cell.locator('a[id^="ctl00_ContentPlaceHolder1_repStudySignUps_"][id$="_HyperLinkStudyName"]').inner_text() 
-            compensation: str = first_cell.locator('span[id^="ctl00_ContentPlaceHolder1_repStudySignUps_"][id$="_LabelCredits"]').inner_text()
-            short_description: str = ""
-            link = ""
+            title: str = first_cell.locator('a[id^="ctl00_ContentPlaceHolder1_repStudySignUps_"][id$="_HyperLinkStudyName"]').inner_text()  # noqa: E501
+            compensation: str = first_cell.locator('span[id^="ctl00_ContentPlaceHolder1_repStudySignUps_"][id$="_LabelCredits"]').inner_text()  # noqa: E501
             study = Study(
                 title=title,
                 compensation=compensation,
-                short_description=short_description,
-                link = self.website_link + link,
+                short_description="",
+                link="",
             )
             studies.append(study)
         return studies
@@ -83,7 +77,7 @@ class Scraper:
         page.get_by_label('Passwort').fill(self.password)
         page.click("#ctl00_ContentPlaceHolder1_default_auth_button")
         if page.is_visible("#ctl00_ContentPlaceHolder1_pnlShowOptionS"):
-                page.click("#ctl00_ContentPlaceHolder1_pnlShowOptionS")
+            page.click("#ctl00_ContentPlaceHolder1_pnlShowOptionS")
 
     def _in_available_studies_navigieren(self, page: Page) -> None:
         page.click("#lnkStudySignupLink")

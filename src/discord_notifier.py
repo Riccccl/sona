@@ -1,7 +1,9 @@
 import requests
+
 from src.models import Study
 
 MAX_DISCORD_CONTENT_LENGTH = 2000
+BOT_USERNAME = "Neue Studie!!!"
 
 
 def _split_message(message: str) -> list[str]:
@@ -9,7 +11,7 @@ def _split_message(message: str) -> list[str]:
         return [message]
 
     chunks: list[str] = []
-    current = []
+    current: list[str] = []
     current_len = 0
 
     for line in message.splitlines(keepends=True):
@@ -35,21 +37,24 @@ def _split_message(message: str) -> list[str]:
 
 def _send_notification(payload: dict, webhook_url: str) -> None:
     try:
-        
         r = requests.post(url=webhook_url, json=payload)
         if r.status_code != 204:
             raise RuntimeError(f"Failed to send notification: {r.status_code} {r.text}")
-    except Exception as e:
-        raise RuntimeError(f"Failed to send notification: {e}")
+    except requests.RequestException as e:
+        raise RuntimeError(f"Failed to send notification: {e}") from e
 
-def _create_payload_from_study(study: Study) -> dict:
+
+def _create_payload_from_study(study: Study) -> dict[str, str]:
     return {
-        "username": f"Neue Studie!!!",
-        "content":  f"**{study.title}**\n"
-                    f" **Bezahlung:** {study.compensation}\n"
-                    f" **Beschreibung:** {study.short_description}\n"
-                    f" **Link:** {study.link}"
+        "username": BOT_USERNAME,
+        "content": (
+            f"**{study.title}**\n"
+            f" **Bezahlung:** {study.compensation}\n"
+            f" **Beschreibung:** {study.short_description}\n"
+            f" **Link:** {study.link}"
+        )
     }
+
 
 def send_study_notification(study: Study, webhook_url: str) -> None:
     payload = _create_payload_from_study(study)
