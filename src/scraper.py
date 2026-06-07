@@ -1,4 +1,7 @@
 import os
+import traceback
+from contextlib import contextmanager
+from datetime import datetime
 from playwright.sync_api import Browser, BrowserContext, Page, sync_playwright, Locator
 from src.models import Study
 
@@ -10,35 +13,35 @@ class Scraper:
         self.website_link = website_link
         self.headless = headless
 
-    def scrape_participated_studies(self) -> list[Study]:
+    @contextmanager
+    def _browser_page(self):
         with sync_playwright() as playwright:
             browser: Browser = playwright.chromium.launch(headless=self.headless)
             context: BrowserContext = browser.new_context()
             page: Page = context.new_page()
             try:
-                page.goto(self.website_link)
-                self._anmeldungsdialog_bedienen(page)
-                self._in_participated_studies_navigieren(page)
-                return self._extract_participated_studies_from_table(page)
+                yield page
             except Exception:
                 os.makedirs("screenshots", exist_ok=True)
-                page.screenshot(path="screenshots/error_participated_studies.png", full_page=True)
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                page.screenshot(path=f"screenshots/error_{timestamp}.png", full_page=True)
+                with open(f"screenshots/error_{timestamp}.txt", "w") as f:
+                    f.write(traceback.format_exc())
                 raise
 
+    def scrape_participated_studies(self) -> list[Study]:
+        with self._browser_page() as page:
+            page.goto(self.website_link)
+            self._anmeldungsdialog_bedienen(page)
+            self._in_participated_studies_navigieren(page)
+            return self._extract_participated_studies_from_table(page)
+
     def scrape_available_studies(self) -> list[Study]:
-        with sync_playwright() as playwright:
-            browser: Browser = playwright.chromium.launch(headless=self.headless)
-            context: BrowserContext = browser.new_context()
-            page: Page = context.new_page()
-            try:
-                page.goto(self.website_link)
-                self._anmeldungsdialog_bedienen(page)
-                self._in_available_studies_navigieren(page)
-                return self._extract_available_studies_from_table(page)
-            except Exception:
-                os.makedirs("screenshots", exist_ok=True)
-                page.screenshot(path="screenshots/error_available_studies.png", full_page=True)
-                raise
+        with self._browser_page() as page:
+            page.goto(self.website_link)
+            self._anmeldungsdialog_bedienen(page)
+            self._in_available_studies_navigieren(page)
+            return self._extract_available_studies_from_table(page)
     
     def _extract_available_studies_from_table(self, page: Page) -> list[Study]:
         table: Locator = page.locator('table.table.table-bordered.table-striped[aria-label="Studies with available timeslots"]')
