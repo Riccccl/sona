@@ -1,6 +1,6 @@
 from time import sleep
 from src.differ import Differ
-from src.discord_notifier import send_study_notification
+from src.discord_notifier import send_study_notification, send_error_notification
 from src.models import Study
 from src.scraper import Scraper
 from src.StudyCache import StudyCache
@@ -37,5 +37,7 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        raise e
-    #print(f"An error occurred: {e}")
+        webhook_url = getenv("DISCORD_WEBHOOK_URL")
+        if webhook_url:
+            send_error_notification(e, webhook_url)
+        raise

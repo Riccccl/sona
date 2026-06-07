@@ -54,3 +54,10 @@ def _create_payload_from_study(study: Study) -> dict:
 def send_study_notification(study: Study, webhook_url: str) -> None:
     payload = _create_payload_from_study(study)
     _send_notification(payload=payload, webhook_url=webhook_url)
+
+def send_error_notification(error: Exception, webhook_url: str) -> None:
+    payload = {
+        "username": "SONA Scraper Error",
+        "content": f"Scraper ist fehlgeschlagen:\n```\n{type(error).__name__}: {error}\n```"
+    }
+    _send_notification(payload=payload, webhook_url=webhook_url)
