@@ -1,3 +1,4 @@
+import os
 from playwright.sync_api import Browser, BrowserContext, Page, sync_playwright, Locator
 from src.models import Study
 
@@ -14,24 +15,30 @@ class Scraper:
             browser: Browser = playwright.chromium.launch(headless=self.headless)
             context: BrowserContext = browser.new_context()
             page: Page = context.new_page()
-            page.goto(self.website_link)
-            self._anmeldungsdialog_bedienen(page)
-            self._in_participated_studies_navigieren(page)
-            studies: list[Study] = self._extract_participated_studies_from_table(page)
-            return studies
+            try:
+                page.goto(self.website_link)
+                self._anmeldungsdialog_bedienen(page)
+                self._in_participated_studies_navigieren(page)
+                return self._extract_participated_studies_from_table(page)
+            except Exception:
+                os.makedirs("screenshots", exist_ok=True)
+                page.screenshot(path="screenshots/error_participated_studies.png", full_page=True)
+                raise
 
     def scrape_available_studies(self) -> list[Study]:
         with sync_playwright() as playwright:
             browser: Browser = playwright.chromium.launch(headless=self.headless)
             context: BrowserContext = browser.new_context()
             page: Page = context.new_page()
-            page.goto(self.website_link)
-
-            self._anmeldungsdialog_bedienen(page)
-
-            self._in_available_studies_navigieren(page)
-            studies: list[Study] = self._extract_available_studies_from_table(page)
-            return studies
+            try:
+                page.goto(self.website_link)
+                self._anmeldungsdialog_bedienen(page)
+                self._in_available_studies_navigieren(page)
+                return self._extract_available_studies_from_table(page)
+            except Exception:
+                os.makedirs("screenshots", exist_ok=True)
+                page.screenshot(path="screenshots/error_available_studies.png", full_page=True)
+                raise
     
     def _extract_available_studies_from_table(self, page: Page) -> list[Study]:
         table: Locator = page.locator('table.table.table-bordered.table-striped[aria-label="Studies with available timeslots"]')

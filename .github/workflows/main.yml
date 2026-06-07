@@ -41,6 +41,14 @@ jobs:
           SONA_PASSWORD: ${{ secrets.SONA_PASSWORD }}
         run: python main.py
 
+      - name: Upload error screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-error-screenshots
+          path: screenshots/
+          if-no-files-found: ignore
+
       - name: Delete old caches
         run: |
           gh cache list --key "cached-studies-" --json id --jq '.[].id' | \
