@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.pylance",
+    "charliermarsh.ruff",
+    "usernamehw.errorlens",
+    "ms-toolsai.jupyter",
+    "mhutchie.git-graph",
+    "asvetliakov.vscode-neovim"
+  ]
+}
