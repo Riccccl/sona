@@ -12,16 +12,13 @@ def main() -> None:
     if not all([getenv("SONA_USERNAME"), getenv("SONA_PASSWORD"), getenv("DISCORD_WEBHOOK_URL")]):
         raise ValueError("Missing required environment variables. Please check your .env file or environment secrets.")
 
-    username: str | None = getenv("SONA_USERNAME")
-    password: str | None = getenv("SONA_PASSWORD")
-    webhook_url: str | None = getenv("DISCORD_WEBHOOK_URL")
+    username: str = getenv("SONA_USERNAME")
+    password: str = getenv("SONA_PASSWORD")
+    webhook_url: str = getenv("DISCORD_WEBHOOK_URL")
     website_link: str = "https://psywue.sona-systems.com/"
     cached_studies_file: str = "cached_studies.json"
 
-    if username is None or password is None or webhook_url is None:
-        raise ValueError("Environment variables cannot be None. Please check your .env file or environment secrets.")
-
-    scraper = Scraper(username, password, website_link, headless=False)
+    scraper = Scraper(username, password, website_link, headless=True)
     available_studies: list[Study] = scraper.scrape_available_studies() 
     newStudyCache = StudyCache(studies=available_studies)
     oldStudyCache = StudyCache.from_file(cached_studies_file)
