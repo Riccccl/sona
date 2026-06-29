@@ -3,9 +3,10 @@ from __future__ import annotations
 from src.models import Study
 from json import dump, load
 from datetime import datetime
+from typing import Optional
 
 class StudyCache:
-    def __init__(self, date_created: datetime = datetime.now(), studies: list[Study] = None) -> None:
+    def __init__(self, date_created: datetime = datetime.now(), studies: Optional[list[Study]] = None) -> None:
         self.date_created: datetime = date_created
         self.studies: list[Study] = studies or []
 
@@ -15,8 +16,8 @@ class StudyCache:
             with open(filename, "r", encoding="utf-8") as f:
                 data: dict = load(f)
                 return StudyCache(
-                    date_created=datetime.fromisoformat(data.get("date_created")),
-                    studies=[Study(**item) for item in data.get("studies")]
+                    date_created=datetime.fromisoformat(data["date_created"]),
+                    studies=[Study(**item) for item in data["studies"]]
                 )
         except (FileNotFoundError, KeyError, ValueError):
             return StudyCache(date_created=datetime.now(), studies=[])
