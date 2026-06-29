@@ -41,12 +41,12 @@ class Scraper:
         for row in rows:
             cells = row.locator('td').all()
             if len(cells) >= 3:
-                #timeslot: str = cells[0].inner_text()
+                timeslot: str = cells[0].inner_text()
                 title: str = cells[1].locator('p strong').inner_text()
                 compensation: str = cells[1].locator('span[id*="LabelCredits"]').inner_text()
                 short_description: str = cells[1].locator('span[id*="LabelStudyType"]').inner_text()
-                link = cells[1].locator('a').get_attribute('href') or ""
-                #eligibility: str = cells[2].inner_text()
+                link = cells[1].locator('a').get_attribute('href')
+                eligibility: str = cells[2].inner_text()
 
                 study = Study(
                     title=title,
