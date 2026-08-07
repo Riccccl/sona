@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from src.models import Study
-from json import dump, load
 from datetime import datetime
+from json import dump, load
+
+from src.models import Study
+
 
 class StudyCache:
     def __init__(self, date_created: datetime = datetime.now(), studies: list[Study] = None) -> None:

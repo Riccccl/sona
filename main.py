@@ -1,11 +1,14 @@
+from os import getenv
 from time import sleep
+
+from dotenv import load_dotenv
+
 from src.differ import Differ
 from src.discord_notifier import send_study_notification
 from src.models import Study
 from src.scraper import Scraper
 from src.StudyCache import StudyCache
-from dotenv import load_dotenv
-from os import getenv
+
 load_dotenv()
 
 def main() -> None:
@@ -34,8 +37,5 @@ def main() -> None:
     newStudyCache.to_file(cached_studies_file)
 
 if __name__ == "__main__":
-    try:
         main()
-    except Exception as e:
-        raise e
     #print(f"An error occurred: {e}")

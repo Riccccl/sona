@@ -1,4 +1,5 @@
 import requests
+
 from src.models import Study
 
 MAX_DISCORD_CONTENT_LENGTH = 2000
@@ -44,7 +45,7 @@ def _send_notification(payload: dict, webhook_url: str) -> None:
 
 def _create_payload_from_study(study: Study) -> dict:
     return {
-        "username": f"Neue Studie!!!",
+        "username": "Neue Studie!!!",
         "content":  f"**{study.title}**\n"
                     f" **Bezahlung:** {study.compensation}\n"
                     f" **Beschreibung:** {study.short_description}\n"
