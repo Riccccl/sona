@@ -31,7 +31,7 @@ def main() -> None:
     console_notifier = ConsoleNotifier()
     ntfy_notifier = NtfyNotifier(secrets.ntfy_webhook_url)
 
-    NotifierService(ntfy_notifier).send_study_notification(new_studies)
+    NotifierService(discord_notifier).send_study_notification(new_studies)
 
     print(f"Time since last check: {differ.get_time_difference()}")
 
