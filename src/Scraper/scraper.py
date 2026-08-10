@@ -2,6 +2,8 @@ from playwright.sync_api import Browser, BrowserContext, Locator, Page, sync_pla
 
 from src.models import Study
 
+from .locators import LOCATORS
+
 
 class Scraper:
     def __init__(self, username: str, password: str, website_link: str, headless: bool = True) -> None:
@@ -17,7 +19,7 @@ class Scraper:
             page: Page = context.new_page()
             page.goto(self.website_link)
             self._anmeldungsdialog_bedienen(page)
-            self._in_participated_studies_navigieren(page)
+            page.click(LOCATORS.PARTICIPATED_STUDIES)
             studies: list[Study] = self._extract_participated_studies_from_table(page)
             return studies
 
@@ -30,17 +32,21 @@ class Scraper:
 
             self._anmeldungsdialog_bedienen(page)
 
-            self._in_available_studies_navigieren(page)
+            page.click(LOCATORS.AVAILABLE_STUDIES)
             studies: list[Study] = self._extract_available_studies_from_table(page)
             return studies
+
+    def extract_rows_from_table(self, page: Page, table_locator: str) -> list[Locator]:
+        table: Locator = page.locator(table_locator)
+        table.wait_for()  # sicherstellen, dass die Tabelle existiert
+        rows: list[Locator] = table.locator(LOCATORS.TABLE_BODY_ROW).all()
+        return rows
     
     def _extract_available_studies_from_table(self, page: Page) -> list[Study]:
-        table: Locator = page.locator('table.table.table-bordered.table-striped[aria-label="Studies with available timeslots"]')
-        table.wait_for()  # sicherstellen, dass die Tabelle existiert
-        rows: list[Locator] = table.locator('tbody tr').all()
+        rows: list[Locator] = self.extract_rows_from_table(page, LOCATORS.AVAILABLE_STUDIES_TABLE)
         studies: list[Study] = []
         for row in rows:
-            cells = row.locator('td').all()
+            cells = row.locator(LOCATORS.TABLE_CELL).all()
             if len(cells) >= 3:
                 #timeslot: str = cells[0].inner_text()
                 title: str = cells[1].locator('p strong').inner_text()
@@ -59,12 +65,10 @@ class Scraper:
         return studies
 
     def _extract_participated_studies_from_table(self, page: Page) -> list[Study]:
-        table: Locator = page.locator('table.table-bordered.table-striped.table-condensed.cf')
-        table.wait_for()  # sicherstellen, dass die Tabelle existiert
-        rows: list[Locator] = table.locator('tbody tr').all()
+        rows: list[Locator] = self.extract_rows_from_table(page, LOCATORS.PARTICIPATED_STUDIES_TABLE)
         studies: list[Study] = []
         for row in rows:
-            cells = row.locator('td').all()
+            cells = row.locator(LOCATORS.TABLE_CELL).all()
             first_cell: Locator = cells[0]
             title: str = first_cell.locator('a[id^="ctl00_ContentPlaceHolder1_repStudySignUps_"][id$="_HyperLinkStudyName"]').inner_text() 
             compensation: str = first_cell.locator('span[id^="ctl00_ContentPlaceHolder1_repStudySignUps_"][id$="_LabelCredits"]').inner_text()
@@ -82,12 +86,6 @@ class Scraper:
     def _anmeldungsdialog_bedienen(self, page: Page) -> None:
         page.get_by_label('Benutzername').fill(self.username)
         page.get_by_label('Passwort').fill(self.password)
-        page.click("#ctl00_ContentPlaceHolder1_default_auth_button")
-        if page.is_visible("#ctl00_ContentPlaceHolder1_pnlShowOptionS"):
-                page.click("#ctl00_ContentPlaceHolder1_pnlShowOptionS")
-
-    def _in_available_studies_navigieren(self, page: Page) -> None:
-        page.click("#lnkStudySignupLink")
-
-    def _in_participated_studies_navigieren(self, page: Page) -> None:
-        page.click("#ctl00_ContentPlaceHolder1_lnkMyScheduleAndCredits3")
+        page.click(LOCATORS.AUTH_BUTTON)
+        if page.is_visible(LOCATORS.PARTICIPANT_BUTTON):
+                page.click(LOCATORS.PARTICIPANT_BUTTON)

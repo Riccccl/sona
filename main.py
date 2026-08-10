@@ -1,37 +1,38 @@
-from os import getenv
-from time import sleep
 
 from dotenv import load_dotenv
 
 from src.differ import Differ
-from src.discord_notifier import send_study_notification
 from src.models import Study
-from src.scraper import Scraper
+from src.Notifier.ConsoleNotifier import ConsoleNotifier
+from src.Notifier.DiscordNotifier import DiscordNotifier
+from src.Notifier.NotifierService import NotifierService
+from src.Notifier.NtfyNotifier import NtfyNotifier
+from src.Scraper.scraper import Scraper
+from src.secrets_provider import SecretsProvider
 from src.StudyCache import StudyCache
 
 load_dotenv()
 
 def main() -> None:
-    if not all([getenv("SONA_USERNAME"), getenv("SONA_PASSWORD"), getenv("DISCORD_WEBHOOK_URL")]):
-        raise ValueError("Missing required environment variables. Please check your .env file or environment secrets.")
-
-    username: str = getenv("SONA_USERNAME")
-    password: str = getenv("SONA_PASSWORD")
-    webhook_url: str = getenv("DISCORD_WEBHOOK_URL")
+    secrets = SecretsProvider()
     website_link: str = "https://psywue.sona-systems.com/"
     cached_studies_file: str = "cached_studies.json"
 
-    scraper = Scraper(username, password, website_link, headless=True)
+    scraper = Scraper(secrets.sona_username, secrets.sona_password, website_link, headless=True)
     available_studies: list[Study] = scraper.scrape_available_studies() 
     newStudyCache = StudyCache(studies=available_studies)
     oldStudyCache = StudyCache.from_file(cached_studies_file)
 
     differ = Differ(oldStudyCache, newStudyCache)
-    print(f"Found {len(differ.get_new_studies())} new studies.")
-    for study in differ.get_new_studies():
-        print(f"Sending notification for study: {study.title}")
-        send_study_notification(study, webhook_url)
-        sleep(1)  # Sleep to avoid hitting rate limits
+    new_studies: list[Study] = differ.get_new_studies()
+    print(f"Found {len(new_studies)} new studies.")
+
+    discord_notifier = DiscordNotifier(secrets.discord_webhook_url)
+    console_notifier = ConsoleNotifier()
+    ntfy_notifier = NtfyNotifier(secrets.ntfy_webhook_url)
+
+    NotifierService(ntfy_notifier).send_study_notification(new_studies)
+
     print(f"Time since last check: {differ.get_time_difference()}")
 
     newStudyCache.to_file(cached_studies_file)
