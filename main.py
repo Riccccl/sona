@@ -3,8 +3,6 @@ from dotenv import load_dotenv
 
 from src.differ import Differ
 from src.models import Study
-from src.Notifier.ConsoleNotifier import ConsoleNotifier
-from src.Notifier.DiscordNotifier import DiscordNotifier
 from src.Notifier.NotifierService import NotifierService
 from src.Notifier.NtfyNotifier import NtfyNotifier
 from src.Scraper.scraper import Scraper
@@ -27,11 +25,9 @@ def main() -> None:
     new_studies: list[Study] = differ.get_new_studies()
     print(f"Found {len(new_studies)} new studies.")
 
-    discord_notifier = DiscordNotifier(secrets.discord_webhook_url)
-    console_notifier = ConsoleNotifier()
     ntfy_notifier = NtfyNotifier(secrets.ntfy_webhook_url)
 
-    NotifierService(discord_notifier).send_study_notification(new_studies)
+    NotifierService(ntfy_notifier).send_study_notification(new_studies)
 
     print(f"Time since last check: {differ.get_time_difference()}")
 
