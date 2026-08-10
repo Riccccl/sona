@@ -37,6 +37,7 @@ jobs:
       - name: Run scraper
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          NTFY_WEBHOOK_URL: ${{ secrets.NTFY_WEBHOOK_URL }}
           SONA_USERNAME: ${{ secrets.SONA_USERNAME }}
           SONA_PASSWORD: ${{ secrets.SONA_PASSWORD }}
         run: python main.py
