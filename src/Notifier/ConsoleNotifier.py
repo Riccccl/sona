@@ -1,32 +1,15 @@
-import time
-
-import requests
-
-from src.models import Study
+import logging
 
 from .INotifier import INotifier
+from .Notification import Notification
+
+log = logging.getLogger(__name__)
 
 
 class ConsoleNotifier(INotifier):
-    def __init__(self):
-        pass
+    """Gibt Benachrichtigungen nur aus - fuer Trockenlaeufe ohne Netzwerk."""
 
-    @staticmethod
-    def _create_payload_from_study(study: Study) -> dict:
-        return {
-            "username": f"{study.title}",
-            "content": f" **Bezahlung:** {study.compensation}\n"
-            f" **Beschreibung:** {study.short_description}\n"
-            f" **Link:** {study.link}",
-        }
+    name = "console"
 
-    def send_study_notification(self, studies: list[Study]) -> None:
-        for study in studies:
-            payload = self._create_payload_from_study(study)
-            try:
-                print(f"Sending notification for study '{study.title}': {payload['content']}")
-                time.sleep(1)  # Sleep to avoid hitting rate limits
-            except Exception as e:  # noqa: BLE001
-                print(
-                    f"{e.__class__.__name__}: Failed to send notification for study '{study.title}': {e}"
-                )
+    def send(self, notification: Notification) -> None:
+        log.info("%s\n%s", notification.title, notification.body)

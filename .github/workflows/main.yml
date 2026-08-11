@@ -36,6 +36,7 @@ jobs:
 
       - name: Run scraper
         env:
+          NOTIFIERS: ${{ vars.NOTIFIERS || 'ntfy' }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           NTFY_WEBHOOK_URL: ${{ secrets.NTFY_WEBHOOK_URL }}
           SONA_USERNAME: ${{ secrets.SONA_USERNAME }}
